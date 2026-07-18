@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf9f6; /* Warm Alabaster */
+  --foreground: #121212; /* Obsidian */
+  
+  --header-bg-to: rgba(250, 249, 246, 0.9);
+  --header-border-to: rgba(124, 99, 86, 0.12);
+  --header-shadow-to: 0 4px 30px -10px rgba(124, 99, 86, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0f0e0d; /* Deep Charcoal/Obsidian */
+    --foreground: #f4f0ec; /* Soft Linen */
+    
+    --header-bg-to: rgba(15, 14, 13, 0.9);
+    --header-border-to: rgba(244, 240, 236, 0.08);
+    --header-shadow-to: 0 4px 30px -10px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-serif);
+  
+  --color-brand-taupe: #7c6356;
+  --color-brand-taupe-light: #9c8477;
+  --color-brand-gold: #c5a059;
+  --color-brand-linen: #f4f0ec;
+  --color-brand-obsidian: #121212;
+  --color-brand-alabaster: #faf9f6;
+  
+  --animate-fade-in-up: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shrink-header {
+  to {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    background-color: var(--header-bg-to);
+    border-color: var(--header-border-to);
+    box-shadow: var(--header-shadow-to);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+.font-serif {
+  font-family: var(--font-serif), Playfair Display, Georgia, serif;
+}
+
+/* Scroll timelines */
+@supports ((animation-timeline: scroll()) and (animation-range: 0% 100%)) {
+  .shrinking-header {
+    animation: shrink-header auto linear both;
+    animation-timeline: scroll(block root);
+    animation-range: 0px 100px;
+  }
+}
+
+/* Glassmorphism helpers */
+.glass {
+  background: rgba(250, 249, 246, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.dark .glass {
+  background: rgba(15, 14, 13, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Elegant scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-taupe-light);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-taupe);
+}
+
