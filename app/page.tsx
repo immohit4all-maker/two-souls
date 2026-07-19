@@ -10,6 +10,21 @@ import GiftFinder from "../components/GiftFinder";
 import Footer from "../components/Footer";
 
 export default function Home() {
+  // Test API connection
+  useEffect(() => {
+    const testApi = async () => {
+      try {
+        console.log("Calling API:", process.env.NEXT_PUBLIC_API_ENDPOINT);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}`);
+        const data = await response.json();
+        console.log("API Response:", data);
+      } catch (error) {
+        console.error("API Call Failed:", error);
+      }
+    };
+    testApi();
+  }, []);
+
   // Scroll reveal setup
   useEffect(() => {
     const observer = new IntersectionObserver(
