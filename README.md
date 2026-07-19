@@ -1,6 +1,6 @@
 # Two Souls
 
-A Next.js storefront app with Prisma and AWS-friendly deployment settings.
+A Next.js storefront app with Drizzle ORM and AWS-friendly deployment settings.
 
 ## Local development
 
@@ -17,7 +17,7 @@ Open http://localhost:3000.
 For a small storefront, the cheapest practical setup is:
 
 - AWS Amplify Hosting for the frontend
-- Amazon RDS for PostgreSQL for the Prisma database
+- Amazon RDS for PostgreSQL for the Drizzle database
 - Amazon S3 only if you later need image uploads
 
 ### Recommended services
@@ -45,5 +45,4 @@ DATABASE_URL=postgresql://postgres:password@your-rds-endpoint:5432/two_souls?sch
 ```bash
 npm run build
 npm run lint
-npx prisma generate
 ```

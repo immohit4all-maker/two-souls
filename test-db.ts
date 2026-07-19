@@ -1,24 +1,20 @@
-import { PrismaClient } from "@prisma/client";
 import { loadEnvConfig } from "@next/env";
+import { db } from "./lib/db";
+import { products } from "./lib/schema";
+import { count } from "drizzle-orm";
 
-// Load .env / .env.local the same way Next.js does (avoids a separate dotenv dependency).
+// Load .env / .env.local the same way Next.js does
 loadEnvConfig(process.cwd());
 
 console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
-// Instantiate with empty options
-const prisma = new PrismaClient({});
-
 async function main() {
   try {
     console.log("Attempting to connect to database...");
-    await prisma.$connect();
-    console.log("Successfully connected to the database!");
     
-    const count = await prisma.product.count();
-    console.log(`Successfully queried products. Count: ${count}`);
+    const result = await db.select({ count: count() }).from(products);
+    console.log(`Successfully queried products. Count: ${result[0].count}`);
     
-    await prisma.$disconnect();
   } catch (error) {
     console.error("Failed to connect to the database:", error);
   }

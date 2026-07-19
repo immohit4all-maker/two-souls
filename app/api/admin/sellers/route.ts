@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { sellers } from "@/lib/schema";
+import { eq, desc } from "drizzle-orm";
 
 // TODO: Implement actual Cognito authorization check
 const isAdmin = async (request: Request) => {
@@ -8,10 +10,8 @@ const isAdmin = async (request: Request) => {
 
 export async function GET() {
   try {
-    const sellers = await prisma.seller.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-    return NextResponse.json(sellers);
+    const sellerList = await db.select().from(sellers).orderBy(desc(sellers.createdAt));
+    return NextResponse.json(sellerList);
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch sellers" }, { status: 500 });
   }
@@ -24,11 +24,8 @@ export async function PATCH(request: Request) {
 
   try {
     const body = await request.json();
-    const seller = await prisma.seller.update({
-      where: { id: body.id },
-      data: { status: body.status },
-    });
-    return NextResponse.json(seller);
+    const [updatedSeller] = await db.update(sellers).set({ status: body.status }).where(eq(sellers.id, body.id)).returning();
+    return NextResponse.json(updatedSeller);
   } catch (error) {
     return NextResponse.json({ error: "Failed to update seller" }, { status: 500 });
   }
