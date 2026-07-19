@@ -54,7 +54,7 @@ export default function OccasionsGrid() {
           Curated Occasions
         </span>
         <h2 className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-brand-obsidian dark:text-brand-linen">
-          Gifts Designed for Life's Rare Moments
+          Gifts Designed for Life&apos;s Rare Moments
         </h2>
         <div className="w-12 h-0.5 bg-brand-gold mt-2"></div>
       </div>

@@ -354,7 +354,7 @@ export default function GiftBuilder() {
                   
                   {selectedItems.length === 0 ? (
                     <p className="text-xs text-brand-taupe/50 italic py-2">
-                      Please go to "Step 2: Add Items" to fill your box...
+                      Please go to &quot;Step 2: Add Items&quot; to fill your box...
                     </p>
                   ) : (
                     <ul className="flex flex-col gap-2">
@@ -383,7 +383,7 @@ export default function GiftBuilder() {
                 {/* Card Message Status */}
                 {cardMessage.trim() && (
                   <div className="mt-2 text-xs border border-brand-gold/20 bg-brand-gold/5 p-3 rounded-lg leading-relaxed text-brand-taupe italic">
-                    "{cardMessage}"
+                    &ldquo;{cardMessage}&rdquo;
                   </div>
                 )}
               </div>

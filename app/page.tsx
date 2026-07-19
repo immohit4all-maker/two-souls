@@ -48,7 +48,7 @@ export default function Home() {
               Our Philosophy
             </span>
             <blockquote className="font-serif text-2xl md:text-3xl font-light italic leading-relaxed text-brand-obsidian dark:text-brand-linen max-w-2xl">
-              "A thoughtful gift is the visible thread that connects two souls across any distance."
+              &ldquo;A thoughtful gift is the visible thread that connects two souls across any distance.&rdquo;
             </blockquote>
             <div className="h-0.5 w-8 bg-brand-gold mt-2"></div>
             <p className="max-w-lg text-xs md:text-sm text-brand-taupe-light font-light leading-relaxed">

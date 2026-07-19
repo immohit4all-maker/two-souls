@@ -47,7 +47,7 @@ export default function CartDrawer() {
                       <path d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5h.008v.008h-.008V10.5Zm6.75 0h.008v.008h-.008V10.5ZM8.625 10.5" />
                     </svg>
                     <p className="text-sm font-sans font-light text-brand-taupe-light">
-                      Your shopping bag is empty.<br />Let's pack something beautiful!
+                      Your shopping bag is empty.<br />Let&apos;s pack something beautiful!
                     </p>
                   </div>
                 ) : (

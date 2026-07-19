@@ -1,5 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import "dotenv/config";
+import { loadEnvConfig } from "@next/env";
+
+// Load .env / .env.local the same way Next.js does (avoids a separate dotenv dependency).
+loadEnvConfig(process.cwd());
 
 console.log("DATABASE_URL:", process.env.DATABASE_URL);
 

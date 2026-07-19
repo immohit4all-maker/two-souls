@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 // Types matching database schema
 type Product = { id: string; name: string; sku: string; seller: { name: string }; category: string; price: number; inventory: number; status: "ACTIVE" | "DRAFT" | "ARCHIVED" };
@@ -9,6 +10,18 @@ type Seller = { id: string; name: string; contactName: string; email: string; pr
 
 const money = (value: number | string) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(Number(value));
 const Icon = ({ children }: { children: ReactNode }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">{children}</svg>;
+
+// Fetch a list endpoint defensively: an API error returns { error } (not an array),
+// which would otherwise crash the dashboard on the first .filter/.map call.
+async function loadList<T>(url: string, setter: (value: T[]) => void) {
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    setter(Array.isArray(data) ? data : []);
+  } catch {
+    setter([]);
+  }
+}
 
 export default function AdminDashboard() {
   const [section, setSection] = useState<"Overview" | "Products" | "Orders" | "Sellers">("Overview");
@@ -20,9 +33,9 @@ export default function AdminDashboard() {
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/products").then(res => res.json()).then(setProducts);
-    fetch("/api/admin/orders").then(res => res.json()).then(setOrders);
-    fetch("/api/admin/sellers").then(res => res.json()).then(setSellers);
+    loadList<Product>("/api/admin/products", setProducts);
+    loadList<Order>("/api/admin/orders", setOrders);
+    loadList<Seller>("/api/admin/sellers", setSellers);
   }, []);
 
   const lowStock = products.filter((product) => product.inventory < 8).length;
@@ -48,7 +61,7 @@ export default function AdminDashboard() {
     const body = { name: data.get("name"), sku: data.get("sku"), price: Number(data.get("price")), inventory: Number(data.get("stock")), category: data.get("category"), sellerId: data.get("seller") };
     await fetch("/api/admin/products", { method: "POST", body: JSON.stringify(body) });
     setShowProductForm(false); flash("Product created");
-    fetch("/api/admin/products").then(res => res.json()).then(setProducts);
+    loadList<Product>("/api/admin/products", setProducts);
   };
 
   const nav = [
@@ -60,7 +73,7 @@ export default function AdminDashboard() {
 
   return <div className="min-h-screen bg-[#f6f5f1] text-[#20211e]">
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col bg-[#20231f] px-5 py-7 text-white md:flex">
-      <a href="/" className="mb-12 px-3 font-serif text-2xl tracking-[0.12em]">TWO SOULS<span className="block pt-1 font-sans text-[9px] font-medium tracking-[0.32em] text-[#cfad6d]">ADMIN STUDIO</span></a>
+      <Link href="/" className="mb-12 px-3 font-serif text-2xl tracking-[0.12em]">TWO SOULS<span className="block pt-1 font-sans text-[9px] font-medium tracking-[0.32em] text-[#cfad6d]">ADMIN STUDIO</span></Link>
       <nav className="space-y-2">{nav.map(([name, icon]) => <button key={name} onClick={() => { setSection(name); setSearch(""); }} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition ${section === name ? "bg-[#c99c4f] text-white shadow-lg" : "text-[#c6c7c0] hover:bg-white/10 hover:text-white"}`}>{icon}<span>{name}</span>{name === "Orders" && <span className="ml-auto rounded-full bg-white/15 px-2 py-0.5 text-[10px]">{orders.filter(o => o.status === "PENDING").length}</span>}</button>)}</nav>
     </aside>
     <main className="md:ml-64">
@@ -86,6 +99,6 @@ function Products({ products, search, onSearch, onNew }: { products: Product[]; 
 function Orders({ orders, search, onSearch, onAdvance }: { orders: Order[]; search: string; onSearch: (value: string) => void; onAdvance: (id: string, status: Order["status"]) => void }) { return <><Toolbar placeholder="Search order or customer..." value={search} onChange={onSearch} action="Export orders" onAction={() => window.print()} /><section className="overflow-hidden rounded-2xl border border-[#e0dfd6] bg-white"><div className="overflow-x-auto"><table className="w-full min-w-[650px] text-left text-sm"><thead className="bg-[#fbfaf7] text-[11px] uppercase tracking-wider text-[#7d7a70]"><tr><th className="px-5 py-3 font-medium">Order</th><th className="px-4 py-3 font-medium">Customer</th><th className="px-4 py-3 font-medium">Total</th><th className="px-4 py-3 font-medium">Status</th></tr></thead><tbody>{orders.map((order) => <tr key={order.id} className="border-t border-[#f0efe9]"><td className="px-5 py-4"><p className="font-medium">{order.id}</p><p className="mt-0.5 text-xs text-[#8b887f]">{order.items.length} items</p></td><td className="px-4 py-4 text-[#5c5c55]">{order.customer.name || "N/A"}</td><td className="px-4 py-4 font-medium">{money(order.total)}</td><td className="px-4 py-4"><Status status={order.status} /></td><td className="px-5 py-4 text-right">{order.status !== "DELIVERED" && <button onClick={() => onAdvance(order.id, "SHIPPED")} className="text-xs font-medium text-[#a8782e]">Advance →</button>}</td></tr>)}</tbody></table></div></section></> }
 function Sellers({ sellers, onApprove }: { sellers: Seller[]; onApprove: (id: string) => void }) { return <div className="grid gap-4 lg:grid-cols-2">{sellers.map((seller) => <article key={seller.id} className="rounded-2xl border border-[#e0dfd6] bg-white p-5"><div className="flex items-start justify-between"><h3 className="font-medium">{seller.name}</h3><Status status={seller.status} /></div><p className="text-xs text-[#85837b]">{seller.contactName} · {seller.email}</p>{seller.status === "PENDING" && <button onClick={() => onApprove(seller.id)} className="mt-4 rounded-md bg-[#c99c4f] px-3 py-1.5 text-xs font-medium text-white">Approve seller</button>}</article>)}</div> }
 function Toolbar({ placeholder, value, onChange, action, onAction }: { placeholder: string; value: string; onChange: (value: string) => void; action: string; onAction: () => void }) { return <div className="mb-7 flex flex-col justify-between gap-3 sm:flex-row"><label className="flex max-w-md flex-1 items-center gap-2 rounded-lg border border-[#ddd9cf] bg-white px-3 py-2.5"><span className="text-[#8a887e]">⌕</span><input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="w-full bg-transparent text-sm outline-none placeholder:text-[#a6a399]" /></label><button onClick={onAction} className="rounded-lg bg-[#20231f] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#3a3e37]">{action}</button></div> }
-function Status({ status }: { status: string }) { const style: Record<string, string> = { ACTIVE: "bg-[#eaf2e6] text-[#52734e]", DRAFT: "bg-[#f1f0eb] text-[#77756d]", PENDING: "bg-[#f8edd9] text-[#a5712a]", PROCESSING: "bg-[#e8f0f4] text-[#477086]", SHIPPED: "bg-[#eee9f4] text-[#705a91]", DELIVERED: "bg-[#eaf2e6] text-[#52734e]", SUSPENDED: "bg-[#fde8e8] text-[#9b1c1c]" }; return <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${style[status] || style.Draft}`}>{status}</span> }
+function Status({ status }: { status: string }) { const style: Record<string, string> = { ACTIVE: "bg-[#eaf2e6] text-[#52734e]", DRAFT: "bg-[#f1f0eb] text-[#77756d]", PENDING: "bg-[#f8edd9] text-[#a5712a]", PROCESSING: "bg-[#e8f0f4] text-[#477086]", SHIPPED: "bg-[#eee9f4] text-[#705a91]", DELIVERED: "bg-[#eaf2e6] text-[#52734e]", SUSPENDED: "bg-[#fde8e8] text-[#9b1c1c]" }; return <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${style[status] || style.DRAFT}`}>{status}</span> }
 function ProductModal({ sellers, onClose, onSubmit }: { sellers: Seller[]; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void }) { return <div className="fixed inset-0 z-40 flex items-center justify-center bg-[#1e211e]/45 p-4"><form onSubmit={onSubmit} className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"><div className="flex items-center justify-between"><div><h2 className="font-serif text-2xl">New product</h2></div><button type="button" onClick={onClose} className="text-xl text-[#777]">×</button></div><div className="mt-6 grid gap-4 sm:grid-cols-2"><Field name="name" label="Product name" required /><Field name="sku" label="SKU" required /><Field name="price" label="Price (INR)" type="number" required /><Field name="stock" label="Initial stock" type="number" required /><label className="flex flex-col gap-1.5 text-xs font-medium text-[#5f5e58]"><span>Seller</span><select name="seller" className="rounded-lg border border-[#ddd9cf] px-3 py-2.5 text-sm outline-none">{sellers.map((seller) => <option key={seller.id} value={seller.id}>{seller.name}</option>)}</select></label></div><div className="mt-7 flex justify-end gap-3"><button type="button" onClick={onClose} className="px-4 py-2.5 text-sm text-[#66645d]">Cancel</button><button className="rounded-lg bg-[#20231f] px-4 py-2.5 text-sm font-medium text-white">Save</button></div></form></div> }
 function Field({ name, label, type = "text", required = false }: { name: string; label: string; type?: string; required?: boolean }) { return <label className="flex flex-col gap-1.5 text-xs font-medium text-[#5f5e58]"><span>{label}</span><input name={name} type={type} required={required} min={type === "number" ? 0 : undefined} className="rounded-lg border border-[#ddd9cf] px-3 py-2.5 text-sm outline-none focus:border-[#c99c4f]" /></label> }

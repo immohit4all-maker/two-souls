@@ -28,16 +28,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Load from local storage on mount
+  // Load from local storage on mount.
+  // Intentionally hydrate in an effect rather than a lazy useState initializer:
+  // both server and first client render must start from an empty cart to avoid an
+  // SSR hydration mismatch on the header cart-count badge; the stored cart is applied
+  // only after mount. The set-state-in-effect rule is disabled here for that reason.
   useEffect(() => {
     try {
       const stored = localStorage.getItem("two_souls_cart");
       if (stored) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCartItems(JSON.parse(stored));
       }
     } catch (e) {
       console.error("Failed to load cart from localStorage", e);
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsHydrated(true);
   }, []);
 

@@ -34,7 +34,7 @@ export default function Header() {
         {/* Navigation links (Desktop left) */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide uppercase text-brand-taupe">
           <Link
-            href="/shop"
+            href="#shop"
             className="hover:text-brand-gold transition-colors duration-200 relative group"
           >
             Shop
@@ -128,7 +128,7 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-brand-alabaster dark:bg-brand-obsidian border-b border-brand-taupe/12 px-6 py-6 flex flex-col gap-6 animate-fade-in-up">
           <Link
-            href="/shop"
+            href="#shop"
             onClick={() => setIsMobileMenuOpen(false)}
             className="text-lg font-medium text-brand-taupe hover:text-brand-gold uppercase tracking-wider"
           >
