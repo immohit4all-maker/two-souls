@@ -43,7 +43,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.error("Failed to load cart from localStorage", e);
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setIsHydrated(true);
   }, []);
 

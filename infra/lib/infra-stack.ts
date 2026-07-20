@@ -79,6 +79,16 @@ export class InfraStack extends cdk.Stack {
     });
 
     const lambdaIntegration = new apigateway.LambdaIntegration(sampleLambda);
-    api.root.addMethod('ANY', lambdaIntegration);
+    
+    // Define resources
+    const products = api.root.addResource('products');
+    const sellers = api.root.addResource('sellers');
+    const orders = api.root.addResource('orders');
+    
+    // Add methods
+    products.addMethod('ANY', lambdaIntegration);
+    sellers.addMethod('ANY', lambdaIntegration);
+    orders.addMethod('ANY', lambdaIntegration);
+    api.root.addMethod('ANY', lambdaIntegration); // Keep root just in case
   }
 }
